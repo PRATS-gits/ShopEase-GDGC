@@ -1,5 +1,5 @@
 # ShopEase - E-Commerce Application
-
+ 
 A full-stack e-commerce platform built with React, TypeScript, Tailwind CSS, Express, and Prisma ORM.
 
 ## 🚀 Quick Setup
