@@ -42,4 +42,4 @@ RUN npx prisma generate
 EXPOSE 3000
 
 # the command to run the dist
-CMD["node","dist/app.js"]
+CMD ["node", "dist/app.js"]
