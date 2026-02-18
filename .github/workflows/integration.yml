@@ -1,83 +1,34 @@
-name: Continuous Integration
+name: Frontend CI
 
 on:
-  # if any push on main branch
   push:
-    branches:
-  # if any pull request on main branch
+    branches: ["frontend"]
   pull_request:
-
+    branches: ["frontend"]
 
 jobs:
-# Job for Backend
-  backend-ci:
+  build:
+    name: Build & Test
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        # see what node versions are supported by our application
-        node-version: []   # node version we are testing ( must be >20 )
-
-    defaults:
-      run:
-        # asking to check the code in the backend folder
-        working-directory: ./backend
+        node-version: [20.x, 22.x]
 
     steps:
-      # get the code from the repo
-      - name : Checkout Code
-        uses :              # github action to get in the repos root folder
+      - uses: actions/checkout@v4
 
-      # install nodejs
-      - name : Setup Node.js
-        uses :              # github action to install nodejs
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
         with:
-          node-version : {{matrix.node-version}} # refernce the node-version set above
-          cache :           # command to install the node packages
-          cache-dependency-path :           # path to the package file
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
 
+      - name: Install dependencies
+        run: npm ci
 
-      # install dependencies
-      - name : Install dependencies
-        run :
+      - name: Lint
+        run: npm run lint
 
-      # generate prisma client
-      - name : Prisma Client
-        run :
-
-      #  check the build
-      - name : Build Check
-        run :
-
-# Job for Frontend
-  frontend-ci :
-    runs-on : ubuntu-latest
-    strategy :
-      matrix :
-        # see what node versions are supported by our application
-        node-version : [20.x,22.x,24.x]
-
-    defaults :
-      run:
-        # asking to check the code in the frontend folder
-        working-directory: ./frontend
-
-    steps :
-      - name : Check Code
-        uses : actions/checkout@v4
-
-      - name : Setup Node.js ${{ matrix.node-version }}
-        uses : actions/setup-node@v4
-        with:
-          node-version : {{matrix.node-version}}
-          cache :           # command to install the node packages
-          cache-dependency-path :           # path to the package file
-
-      - name : Install Dependencies
-        run : npm install
-
-      - name : Run Lint
-        run :             # command to run lint
-
-      - name : Build Check
-        run :             # command to build the application 
-
+      - name: Build
+        run: npm run build

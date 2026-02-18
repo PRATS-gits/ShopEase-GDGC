@@ -1,26 +1,34 @@
-# Node version-package we are using to build the application
-FROM  AS builder
+# Stage 1: Build
+FROM node:22-alpine AS builder
 
-# Set up the work directory
+WORKDIR /app
 
+# Copy package files
+COPY package*.json ./
 
-# Copy the package files
+# Install dependencies
+RUN npm install
 
+# Copy source code
+COPY . .
 
-# run the install command
+# Build the application
+RUN npm run build
 
+# Stage 2: Production
+FROM nginx:alpine
 
-# copy the entire code base
+# Remove default nginx static assets
+RUN rm -rf /usr/share/nginx/html/*
 
-
-# run the build command
-
-
-# something different  
-FROM nginx:alpine AS production
-
+# Copy built application from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port
 EXPOSE 80
 
+# Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]
