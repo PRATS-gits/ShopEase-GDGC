@@ -1,4 +1,14 @@
 node_modules
 dist
-.env
+coverage
 .git
+.gitignore
+.dockerignore
+.env
+.env.*
+Dockerfile
+README.md
+npm-debug.log
+yarn-error.log
+.DS_Store
+Thumbs.db

@@ -1,45 +1,49 @@
-# Stage 1 : Build Stage
+# Stage 1: Build
 FROM node:22-alpine AS builder
 
-#  set the working directory in the application
 WORKDIR /app
 
-# copy package files
+# Copy package files
 COPY package*.json ./
+
+# Copy Prisma schema
 COPY prisma ./prisma/
 
-#  install all the dependencies
+# Install dependencies
 RUN npm install
 
-# generate prisma client
+# Generate Prisma Client
 RUN npx prisma generate
 
-# copy the rest
+# Copy source code
 COPY . .
 
-# building the application
+# Build the application
 RUN npm run build
 
-# Stage 2 : Production Stage
-FROM node:20-alpine AS production
+# Stage 2: Production
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
-# copy package file
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Copy package files
 COPY package*.json ./
 
-# install dependencies
-RUN npm install --only:production
+# Install only production dependencies
+RUN npm install --omit=dev
 
-# copy the built from the builder stage
+# Copy built application
 COPY --from=builder /app/dist ./dist
+
+# Copy Prisma schema and migrations (needed for runtime db operations)
 COPY --from=builder /app/prisma ./prisma
 
-# generate prisma client
+# Generate Prisma Client for production environment
 RUN npx prisma generate
 
-# expose port
-EXPOSE 3001
+EXPOSE 3000
 
-# the command to run the dist
-CMD ["node", "dist/app.js"]
+CMD ["node", "dist/server.js"]
